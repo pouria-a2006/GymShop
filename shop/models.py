@@ -133,3 +133,78 @@ class ProductImage(models.Model):
 
     def __str__(self):
         return f"{self.product.name} - Image"
+
+class Inventory(models.Model):
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="inventory"
+    )
+
+    sku = models.CharField(
+        max_length=100,
+        unique=True
+    )
+
+    quantity = models.PositiveIntegerField(default=0)
+
+    is_active = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name = "Inventory"
+        verbose_name_plural = "Inventory"
+
+    def __str__(self):
+        return f"{self.product.name} ({self.sku})"
+
+class ProductAttribute(models.Model):
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="attributes"
+    )
+
+    name = models.CharField(max_length=100)
+
+    value = models.CharField(max_length=255)
+
+    class Meta:
+        verbose_name = "Product Attribute"
+        verbose_name_plural = "Product Attributes"
+
+    def __str__(self):
+        return f"{self.product.name} | {self.name}: {self.value}"
+
+class ProductReview(models.Model):
+
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="reviews"
+    )
+
+    name = models.CharField(max_length=100)
+
+    email = models.EmailField()
+
+    rating = models.PositiveSmallIntegerField(default=5)
+
+    comment = models.TextField()
+
+    is_approved = models.BooleanField(default=False)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        verbose_name = "Product Review"
+        verbose_name_plural = "Product Reviews"
+
+    def __str__(self):
+        return f"{self.product.name} - {self.name}"
