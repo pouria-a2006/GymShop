@@ -54,39 +54,70 @@ class ProductAdmin(admin.ModelAdmin):
         "reset_stock",
     ]
 
-    ...
+    list_display = (
+        "name",
+        "category",
+        "brand",
+        "price",
+        "discount_price",
+        "stock",
+        "image_count",
+        "attribute_count",
+        "inventory_count",
+        "is_available",
+    )
+
+    list_filter = (
+        "category",
+        "brand",
+        "is_available",
+        "created_at",
+    )
+
+    search_fields = (
+        "name",
+        "description",
+        "brand__name",
+        "category__name",
+    )
+
+    prepopulated_fields = {
+        "slug": ("name",)
+    }
 
     ordering = ("-created_at",)
 
+    list_per_page = 20
+
     fieldsets = (
-    ("Product Information", {
-        "fields": (
-            "name",
-            "slug",
-            "category",
-            "brand",
-            "description",
-        )
-    }),
-    ("Pricing", {
-        "fields": (
-            "price",
-            "discount_price",
-        )
-    }),
-    ("Inventory", {
-        "fields": (
-            "stock",
-            "weight",
-            "is_available",
-        )
-    }),
-    ("Media", {
-        "fields": (
-            "image",
-        )
-    }),
- )
+        ("Product Information", {
+            "fields": (
+                "name",
+                "slug",
+                "category",
+                "brand",
+                "description",
+            )
+        }),
+        ("Pricing", {
+            "fields": (
+                "price",
+                "discount_price",
+            )
+        }),
+        ("Inventory", {
+            "fields": (
+                "stock",
+                "weight",
+                "is_available",
+            )
+        }),
+        ("Media", {
+            "fields": (
+                "image",
+            )
+        }),
+    )
 
     @admin.action(description="Mark selected products as available")
     def make_available(self, request, queryset):
@@ -99,7 +130,22 @@ class ProductAdmin(admin.ModelAdmin):
     @admin.action(description="Reset stock to zero")
     def reset_stock(self, request, queryset):
         queryset.update(stock=0)
-   
+
+    def image_count(self, obj):
+        return obj.gallery.count()
+    image_count.short_description = "Images"
+
+
+    def attribute_count(self, obj):
+        return obj.attributes.count()
+    attribute_count.short_description = "Attributes"
+
+
+    def inventory_count(self, obj):
+        return obj.inventory.count()
+    inventory_count.short_description = "Inventory"
+
+    
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = (
