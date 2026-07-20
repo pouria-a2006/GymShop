@@ -53,6 +53,7 @@ class ProductAdmin(admin.ModelAdmin):
         "category",
         "brand",
         "price",
+        "discount_price",
         "stock",
         "is_available",
     )
@@ -61,16 +62,24 @@ class ProductAdmin(admin.ModelAdmin):
         "category",
         "brand",
         "is_available",
+        "created_at",
     )
 
     search_fields = (
         "name",
         "description",
+        "brand__name",
+        "category__name",
     )
 
     prepopulated_fields = {
         "slug": ("name",)
     }
+    
+    list_per_page = 20
+
+    ordering = ("-created_at",)
+
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = (
