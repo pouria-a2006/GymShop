@@ -41,45 +41,35 @@ class BrandAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    
+
     inlines = [
         ProductImageInline,
         InventoryInline,
         ProductAttributeInline,
     ]
 
-    list_display = (
-        "name",
-        "category",
-        "brand",
-        "price",
-        "discount_price",
-        "stock",
-        "is_available",
-    )
+    actions = [
+        "make_available",
+        "make_unavailable",
+        "reset_stock",
+    ]
 
-    list_filter = (
-        "category",
-        "brand",
-        "is_available",
-        "created_at",
-    )
-
-    search_fields = (
-        "name",
-        "description",
-        "brand__name",
-        "category__name",
-    )
-
-    prepopulated_fields = {
-        "slug": ("name",)
-    }
-    
-    list_per_page = 20
+    ...
 
     ordering = ("-created_at",)
 
+    @admin.action(description="Mark selected products as available")
+    def make_available(self, request, queryset):
+        queryset.update(is_available=True)
+
+    @admin.action(description="Mark selected products as unavailable")
+    def make_unavailable(self, request, queryset):
+        queryset.update(is_available=False)
+
+    @admin.action(description="Reset stock to zero")
+    def reset_stock(self, request, queryset):
+        queryset.update(stock=0)
+   
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = (
