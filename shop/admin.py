@@ -58,6 +58,36 @@ class ProductAdmin(admin.ModelAdmin):
 
     ordering = ("-created_at",)
 
+    fieldsets = (
+    ("Product Information", {
+        "fields": (
+            "name",
+            "slug",
+            "category",
+            "brand",
+            "description",
+        )
+    }),
+    ("Pricing", {
+        "fields": (
+            "price",
+            "discount_price",
+        )
+    }),
+    ("Inventory", {
+        "fields": (
+            "stock",
+            "weight",
+            "is_available",
+        )
+    }),
+    ("Media", {
+        "fields": (
+            "image",
+        )
+    }),
+ )
+
     @admin.action(description="Mark selected products as available")
     def make_available(self, request, queryset):
         queryset.update(is_available=True)
