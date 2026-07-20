@@ -17,6 +17,20 @@ class CategoryAdmin(admin.ModelAdmin):
     prepopulated_fields = {"slug": ("name",)}
     search_fields = ("name",)
 
+class ProductImageInline(admin.TabularInline):
+    model = ProductImage
+    extra = 1
+
+
+class InventoryInline(admin.TabularInline):
+    model = Inventory
+    extra = 1
+
+
+class ProductAttributeInline(admin.TabularInline):
+    model = ProductAttribute
+    extra = 1
+
 
 @admin.register(Brand)
 class BrandAdmin(admin.ModelAdmin):
@@ -27,6 +41,13 @@ class BrandAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
+    
+    inlines = [
+        ProductImageInline,
+        InventoryInline,
+        ProductAttributeInline,
+    ]
+
     list_display = (
         "name",
         "category",
