@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.safestring import mark_safe
 from .models import (
     Category,
     Brand,
@@ -64,7 +65,10 @@ class ProductAdmin(admin.ModelAdmin):
         "image_count",
         "attribute_count",
         "inventory_count",
-        "is_available",
+        "stock_status",
+        "availability_status",
+        "created_at",
+        "updated_at",
     )
 
     list_filter = (
@@ -88,6 +92,12 @@ class ProductAdmin(admin.ModelAdmin):
     ordering = ("-created_at",)
 
     list_per_page = 20
+  
+    readonly_fields = (
+        "slug",
+        "created_at",
+        "updated_at",
+    )
 
     fieldsets = (
         ("Product Information", {
@@ -117,6 +127,12 @@ class ProductAdmin(admin.ModelAdmin):
                 "image",
             )
         }),
+        ("Dates", {
+            "fields": (
+                "created_at",
+                "updated_at",
+            )
+         }),
     )
 
     @admin.action(description="Mark selected products as available")
@@ -140,11 +156,40 @@ class ProductAdmin(admin.ModelAdmin):
         return obj.attributes.count()
     attribute_count.short_description = "Attributes"
 
-
     def inventory_count(self, obj):
         return obj.inventory.count()
     inventory_count.short_description = "Inventory"
 
+
+    def stock_status(self, obj):
+        if obj.stock == 0:
+            return mark_safe(
+                '<span style="color:red;"><b>Out of Stock</b></span>'
+            )
+
+        elif obj.stock < 10:
+            return mark_safe(
+                '<span style="color:orange;"><b>Low Stock</b></span>'
+            )
+
+        return mark_safe(
+            '<span style="color:green;"><b>In Stock</b></span>'
+        )
+
+    stock_status.short_description = "Stock Status"
+
+
+    def availability_status(self, obj):
+        if obj.is_available:
+            return mark_safe(
+                '<span style="color:green;"><b>Available</b></span>'
+            )
+
+        return mark_safe(
+            '<span style="color:red;"><b>Unavailable</b></span>'
+        )
+
+    availability_status.short_description = "Availability"
     
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
