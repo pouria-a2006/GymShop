@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
+from django.utils.html import format_html
 from .models import (
     Category,
     Brand,
@@ -85,25 +86,20 @@ class ProductAdmin(admin.ModelAdmin):
         "category__name",
     )
 
-    prepopulated_fields = {
-        "slug": ("name",)
-    }
-
     ordering = ("-created_at",)
 
     list_per_page = 20
   
     readonly_fields = (
-        "slug",
         "created_at",
         "updated_at",
+        "image_preview",
     )
 
     fieldsets = (
         ("Product Information", {
             "fields": (
                 "name",
-                "slug",
                 "category",
                 "brand",
                 "description",
@@ -125,6 +121,7 @@ class ProductAdmin(admin.ModelAdmin):
         ("Media", {
             "fields": (
                 "image",
+                "image_preview",
             )
         }),
         ("Dates", {
@@ -178,7 +175,6 @@ class ProductAdmin(admin.ModelAdmin):
 
     stock_status.short_description = "Stock Status"
 
-
     def availability_status(self, obj):
         if obj.is_available:
             return mark_safe(
@@ -190,7 +186,19 @@ class ProductAdmin(admin.ModelAdmin):
         )
 
     availability_status.short_description = "Availability"
-    
+
+    def image_preview(self, obj):
+        if obj.image:
+            return format_html(
+                '<img src="{}" width="120" style="border-radius:10px;" />',
+                obj.image.url
+            )
+
+        return "No Image"
+
+    image_preview.short_description = "Preview"
+
+
 @admin.register(ProductImage)
 class ProductImageAdmin(admin.ModelAdmin):
     list_display = (
