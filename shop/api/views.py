@@ -162,3 +162,22 @@ class CartItemAPIView(generics.GenericAPIView):
         return Response(
             CartSerializer(cart).data
         )
+
+    def delete(self, request, pk):
+        cart = get_object_or_404(
+            Cart,
+            user=request.user,
+        )
+
+        item = get_object_or_404(
+            CartItem,
+            id=pk,
+            cart=cart,
+        )
+
+        item.delete()
+
+        return Response(
+            CartSerializer(cart).data,
+            status=status.HTTP_200_OK,
+        )
