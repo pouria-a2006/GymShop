@@ -4,6 +4,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
+from .serializers import UpdateCartItemSerializer
 from shop.models import (
     Category,
     Brand,
@@ -137,4 +138,27 @@ class CartAPIView(generics.GenericAPIView):
         return Response(
             CartSerializer(cart).data,
             status=status.HTTP_200_OK,
+        )
+
+class CartItemAPIView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UpdateCartItemSerializer
+
+    def patch(self, request, pk):
+        cart = get_object_or_404(Cart, user=request.user)
+
+        item = get_object_or_404(
+            CartItem,
+            id=pk,
+            cart=cart,
+        )
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        item.quantity = serializer.validated_data["quantity"]
+        item.save()
+
+        return Response(
+            CartSerializer(cart).data
         )
