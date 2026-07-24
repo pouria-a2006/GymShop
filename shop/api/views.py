@@ -18,6 +18,17 @@ from .serializers import (
     UserSerializer,
     LogoutSerializer,
 )
+from rest_framework.views import APIView
+
+from shop.models import Cart
+
+from .serializers import (
+    CartSerializer,
+)
+
+from django.shortcuts import get_object_or_404
+from shop.models import Cart, CartItem, Product
+from .serializers import AddToCartSerializer
 
 
 class CategoryListAPIView(generics.ListAPIView):
@@ -89,4 +100,41 @@ class LogoutAPIView(generics.GenericAPIView):
         return Response(
             {"detail": "Successfully logged out."},
             status=status.HTTP_205_RESET_CONTENT,
+        )
+
+class CartAPIView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AddToCartSerializer
+
+    def get(self, request):
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        serializer = CartSerializer(cart)
+        return Response(serializer.data)
+
+    def post(self, request):
+        cart, created = Cart.objects.get_or_create(user=request.user)
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        product = get_object_or_404(
+            Product,
+            id=serializer.validated_data["product_id"],
+        )
+
+        quantity = serializer.validated_data["quantity"]
+
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product,
+            defaults={"quantity": quantity},
+        )
+
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+
+        return Response(
+            CartSerializer(cart).data,
+            status=status.HTTP_200_OK,
         )

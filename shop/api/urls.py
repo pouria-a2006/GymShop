@@ -8,6 +8,7 @@ from .views import (
     RegisterAPIView,
     ProfileAPIView,
     LogoutAPIView,
+    CartAPIView,
 )
 
 urlpatterns = [
@@ -51,5 +52,11 @@ urlpatterns = [
     "logout/",
     LogoutAPIView.as_view(),
     name="api-logout",
+    ),
+
+    path(
+    "cart/",
+    CartAPIView.as_view(),
+    name="api-cart",
     ),
 ]
