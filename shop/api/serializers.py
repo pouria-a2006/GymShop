@@ -7,6 +7,8 @@ from shop.models import (
     Category,
     Brand,
     Product,
+     Order,
+    OrderItem,
 )
 
 
@@ -123,3 +125,33 @@ class AddToCartSerializer(serializers.Serializer):
 
 class UpdateCartItemSerializer(serializers.Serializer):
     quantity = serializers.IntegerField(min_value=1)
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    total_price = serializers.ReadOnlyField()
+
+    class Meta:
+        model = OrderItem
+        fields = [
+            "id",
+            "product",
+            "quantity",
+            "price",
+            "total_price",
+        ]
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(
+        many=True,
+        read_only=True,
+    )
+
+    class Meta:
+        model = Order
+        fields = [
+            "id",
+            "status",
+            "created_at",
+            "items",
+        ]

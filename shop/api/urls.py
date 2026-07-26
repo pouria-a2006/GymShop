@@ -10,6 +10,7 @@ from .views import (
     LogoutAPIView,
     CartAPIView,
     CartItemAPIView,
+    CheckoutAPIView,
 )
 
 urlpatterns = [
@@ -65,5 +66,11 @@ urlpatterns = [
     "cart/items/<int:pk>/",
     CartItemAPIView.as_view(),
     name="api-cart-item",
+    ),
+
+    path(
+    "checkout/",
+    CheckoutAPIView.as_view(),
+    name="api-checkout",
     ),
 ]

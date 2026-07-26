@@ -9,6 +9,8 @@ from shop.models import (
     Category,
     Brand,
     Product,
+    Order,
+    OrderItem,
 )
 
 from .serializers import (
@@ -18,6 +20,7 @@ from .serializers import (
     RegisterSerializer,
     UserSerializer,
     LogoutSerializer,
+    OrderSerializer,
 )
 from rest_framework.views import APIView
 
@@ -180,4 +183,38 @@ class CartItemAPIView(generics.GenericAPIView):
         return Response(
             CartSerializer(cart).data,
             status=status.HTTP_200_OK,
+        )
+
+class CheckoutAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        cart = get_object_or_404(
+            Cart,
+            user=request.user,
+        )
+
+        if not cart.items.exists():
+            return Response(
+                {"detail": "Cart is empty."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        order = Order.objects.create(
+            user=request.user,
+        )
+
+        for item in cart.items.all():
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price=item.product.discount_price or item.product.price,
+            )
+
+        cart.items.all().delete()
+
+        return Response(
+            OrderSerializer(order).data,
+            status=status.HTTP_201_CREATED,
         )
