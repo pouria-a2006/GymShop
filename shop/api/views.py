@@ -15,6 +15,7 @@ from shop.models import (
     CartItem,
     Order,
     OrderItem,
+    Wishlist,
 )
 
 from .serializers import (
@@ -29,6 +30,8 @@ from .serializers import (
     UpdateCartItemSerializer,
     OrderSerializer,
     OrderItemSerializer,
+    WishlistSerializer,
+    AddWishlistSerializer,
 )
 class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.all()
@@ -230,4 +233,64 @@ class OrderDetailAPIView(generics.RetrieveAPIView):
     def get_queryset(self):
         return Order.objects.filter(
             user=self.request.user
+        )
+
+class WishlistAPIView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AddWishlistSerializer
+
+    def get(self, request):
+        wishlist = Wishlist.objects.filter(
+            user=request.user
+        )
+
+        serializer = WishlistSerializer(
+            wishlist,
+            many=True,
+        )
+
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = self.get_serializer(
+            data=request.data
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        product = get_object_or_404(
+            Product,
+            id=serializer.validated_data["product_id"],
+        )
+
+        Wishlist.objects.get_or_create(
+            user=request.user,
+            product=product,
+        )
+
+        return Response(
+            {
+                "detail": "Product added to wishlist."
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class WishlistItemAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        item = get_object_or_404(
+            Wishlist,
+            id=pk,
+            user=request.user,
+        )
+
+        item.delete()
+
+        return Response(
+            {
+                "detail": "Removed from wishlist."
+            },
+            status=status.HTTP_200_OK,
         )

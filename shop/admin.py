@@ -1,5 +1,6 @@
 from django.contrib import admin
 from django.utils.safestring import mark_safe
+from .models import Wishlist
 from django.utils.html import format_html
 from .models import (
     Category,
@@ -258,4 +259,17 @@ class ProductReviewAdmin(admin.ModelAdmin):
         "product__name",
         "name",
         "email",
+    )
+
+@admin.register(Wishlist)
+class WishlistAdmin(admin.ModelAdmin):
+    list_display = (
+        "user",
+        "product",
+        "created_at",
+    )
+
+    search_fields = (
+        "user__username",
+        "product__name",
     )

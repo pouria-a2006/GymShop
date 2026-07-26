@@ -9,6 +9,7 @@ from shop.models import (
     Product,
      Order,
     OrderItem,
+    Wishlist,
 )
 
 
@@ -155,3 +156,18 @@ class OrderSerializer(serializers.ModelSerializer):
             "created_at",
             "items",
         ]
+
+class WishlistSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+
+    class Meta:
+        model = Wishlist
+        fields = (
+            "id",
+            "product",
+            "created_at",
+        )
+
+
+class AddWishlistSerializer(serializers.Serializer):
+    product_id = serializers.IntegerField()
