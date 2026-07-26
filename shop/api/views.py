@@ -1,14 +1,18 @@
-from rest_framework import generics
-from rest_framework import filters
-from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.permissions import IsAuthenticated
-from rest_framework import status
+from django.shortcuts import get_object_or_404
+
+from rest_framework import generics, status, filters
+from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UpdateCartItemSerializer
+from rest_framework.permissions import IsAuthenticated
+
+from django_filters.rest_framework import DjangoFilterBackend
+
 from shop.models import (
     Category,
     Brand,
     Product,
+    Cart,
+    CartItem,
     Order,
     OrderItem,
 )
@@ -20,21 +24,12 @@ from .serializers import (
     RegisterSerializer,
     UserSerializer,
     LogoutSerializer,
-    OrderSerializer,
-)
-from rest_framework.views import APIView
-
-from shop.models import Cart
-
-from .serializers import (
     CartSerializer,
+    AddToCartSerializer,
+    UpdateCartItemSerializer,
+    OrderSerializer,
+    OrderItemSerializer,
 )
-
-from django.shortcuts import get_object_or_404
-from shop.models import Cart, CartItem, Product
-from .serializers import AddToCartSerializer
-
-
 class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
@@ -217,4 +212,22 @@ class CheckoutAPIView(APIView):
         return Response(
             OrderSerializer(order).data,
             status=status.HTTP_201_CREATED,
+        )
+
+class OrderListAPIView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        return Order.objects.filter(
+            user=self.request.user
+        ).order_by("-created_at")
+
+class OrderDetailAPIView(generics.RetrieveAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = OrderSerializer
+
+    def get_queryset(self):
+        return Order.objects.filter(
+            user=self.request.user
         )
