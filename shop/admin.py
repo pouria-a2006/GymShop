@@ -14,11 +14,16 @@ from .models import (
 
 
 
-@admin.register(Category)
-class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "created_at")
-    prepopulated_fields = {"slug": ("name",)}
-    search_fields = ("name",)
+@admin.register(ProductReview)
+class ProductReviewAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "user",
+        "product",
+        "rating",
+        "is_approved",
+        "created_at",
+    )
 
 class ProductImageInline(admin.TabularInline):
     model = ProductImage
@@ -239,27 +244,7 @@ class ProductAttributeAdmin(admin.ModelAdmin):
         "value",
     )
 
-@admin.register(ProductReview)
-class ProductReviewAdmin(admin.ModelAdmin):
 
-    list_display = (
-        "product",
-        "name",
-        "rating",
-        "is_approved",
-        "created_at",
-    )
-
-    list_filter = (
-        "rating",
-        "is_approved",
-    )
-
-    search_fields = (
-        "product__name",
-        "name",
-        "email",
-    )
 
 @admin.register(Wishlist)
 class WishlistAdmin(admin.ModelAdmin):

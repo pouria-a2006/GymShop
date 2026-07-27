@@ -4,6 +4,7 @@ from rest_framework import generics, status, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from shop.models import ProductReview
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -32,6 +33,9 @@ from .serializers import (
     OrderItemSerializer,
     WishlistSerializer,
     AddWishlistSerializer,
+    ProductReviewSerializer,
+    CreateReviewSerializer,
+
 )
 class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.all()
@@ -293,4 +297,38 @@ class WishlistItemAPIView(APIView):
                 "detail": "Removed from wishlist."
             },
             status=status.HTTP_200_OK,
+        )
+
+class ReviewListCreateAPIView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return ProductReview.objects.filter(
+            product_id=self.kwargs["product_id"]
+        )
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return CreateReviewSerializer
+        return ProductReviewSerializer
+
+    def perform_create(self, serializer):
+        product = get_object_or_404(
+            Product,
+            id=self.kwargs["product_id"],
+        )
+
+        serializer.save(
+            user=self.request.user,
+            product=product,
+        )
+
+
+class ReviewDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProductReviewSerializer
+
+    def get_queryset(self):
+        return ProductReview.objects.filter(
+            user=self.request.user
         )

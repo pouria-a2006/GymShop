@@ -182,17 +182,20 @@ class ProductAttribute(models.Model):
     def __str__(self):
         return f"{self.product.name} | {self.name}: {self.value}"
 
+
 class ProductReview(models.Model):
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="reviews"
+    )
 
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
         related_name="reviews"
     )
-
-    name = models.CharField(max_length=100)
-
-    email = models.EmailField()
 
     rating = models.PositiveSmallIntegerField(default=5)
 
@@ -201,7 +204,6 @@ class ProductReview(models.Model):
     is_approved = models.BooleanField(default=False)
 
     created_at = models.DateTimeField(auto_now_add=True)
-
     class Meta:
         ordering = ["-created_at"]
         verbose_name = "Product Review"

@@ -15,6 +15,8 @@ from .views import (
     OrderDetailAPIView,
     WishlistAPIView,
     WishlistItemAPIView,
+    ReviewListCreateAPIView,
+    ReviewDetailAPIView,
 
 )
 
@@ -99,5 +101,17 @@ urlpatterns = [
     "wishlist/<int:pk>/",
     WishlistItemAPIView.as_view(),
     name="api-wishlist-item",
+    ),
+
+    path(
+    "products/<int:product_id>/reviews/",
+    ReviewListCreateAPIView.as_view(),
+    name="api-product-reviews",
+    ),
+
+    path(
+    "reviews/<int:pk>/",
+    ReviewDetailAPIView.as_view(),
+    name="api-review-detail",
     ),
 ]
