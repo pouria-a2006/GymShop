@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.text import slugify
+from .utils import generate_unique_slug
 from django.contrib.auth.models import User
 
 
@@ -16,7 +16,12 @@ class Category(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = generate_unique_slug(
+                Category,
+                self.name,
+                self
+            )
+
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -36,12 +41,17 @@ class Brand(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = generate_unique_slug(
+                Brand,
+                self.name,
+                self
+            )
+
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
-
+    
 class Product(models.Model):
     name = models.CharField(max_length=200)
 
@@ -100,13 +110,17 @@ class Product(models.Model):
 
     def save(self, *args, **kwargs):
         if not self.slug:
-            self.slug = slugify(self.name)
+            self.slug = generate_unique_slug(
+                Product,
+                self.name,
+                self
+            )
 
         super().save(*args, **kwargs)
 
     def __str__(self):
         return self.name
-
+    
 class ProductImage(models.Model):
     product = models.ForeignKey(
         Product,

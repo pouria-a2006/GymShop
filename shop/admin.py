@@ -258,3 +258,12 @@ class WishlistAdmin(admin.ModelAdmin):
         "user__username",
         "product__name",
     )
+
+@admin.register(Category)
+class CategoryAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "name",
+        "slug",
+        "created_at",
+    )
