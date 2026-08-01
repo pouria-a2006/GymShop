@@ -4,6 +4,7 @@ from rest_framework import generics, status, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from shop.models import ProductReview
 
 from django_filters.rest_framework import DjangoFilterBackend
 
@@ -15,6 +16,7 @@ from shop.models import (
     CartItem,
     Order,
     OrderItem,
+    Wishlist,
 )
 
 from .serializers import (
@@ -29,6 +31,11 @@ from .serializers import (
     UpdateCartItemSerializer,
     OrderSerializer,
     OrderItemSerializer,
+    WishlistSerializer,
+    AddWishlistSerializer,
+    ProductReviewSerializer,
+    CreateReviewSerializer,
+
 )
 class CategoryListAPIView(generics.ListAPIView):
     queryset = Category.objects.all()
@@ -229,5 +236,99 @@ class OrderDetailAPIView(generics.RetrieveAPIView):
 
     def get_queryset(self):
         return Order.objects.filter(
+            user=self.request.user
+        )
+
+class WishlistAPIView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AddWishlistSerializer
+
+    def get(self, request):
+        wishlist = Wishlist.objects.filter(
+            user=request.user
+        )
+
+        serializer = WishlistSerializer(
+            wishlist,
+            many=True,
+        )
+
+        return Response(serializer.data)
+
+    def post(self, request):
+        serializer = self.get_serializer(
+            data=request.data
+        )
+
+        serializer.is_valid(raise_exception=True)
+
+        product = get_object_or_404(
+            Product,
+            id=serializer.validated_data["product_id"],
+        )
+
+        Wishlist.objects.get_or_create(
+            user=request.user,
+            product=product,
+        )
+
+        return Response(
+            {
+                "detail": "Product added to wishlist."
+            },
+            status=status.HTTP_201_CREATED,
+        )
+
+
+class WishlistItemAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, pk):
+        item = get_object_or_404(
+            Wishlist,
+            id=pk,
+            user=request.user,
+        )
+
+        item.delete()
+
+        return Response(
+            {
+                "detail": "Removed from wishlist."
+            },
+            status=status.HTTP_200_OK,
+        )
+
+class ReviewListCreateAPIView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return ProductReview.objects.filter(
+            product_id=self.kwargs["product_id"]
+        )
+
+    def get_serializer_class(self):
+        if self.request.method == "POST":
+            return CreateReviewSerializer
+        return ProductReviewSerializer
+
+    def perform_create(self, serializer):
+        product = get_object_or_404(
+            Product,
+            id=self.kwargs["product_id"],
+        )
+
+        serializer.save(
+            user=self.request.user,
+            product=product,
+        )
+
+
+class ReviewDetailAPIView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ProductReviewSerializer
+
+    def get_queryset(self):
+        return ProductReview.objects.filter(
             user=self.request.user
         )

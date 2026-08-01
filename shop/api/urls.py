@@ -13,6 +13,10 @@ from .views import (
     CheckoutAPIView,
     OrderListAPIView,
     OrderDetailAPIView,
+    WishlistAPIView,
+    WishlistItemAPIView,
+    ReviewListCreateAPIView,
+    ReviewDetailAPIView,
 
 )
 
@@ -85,5 +89,29 @@ urlpatterns = [
     path(
     "orders/<int:pk>/",
     OrderDetailAPIView.as_view(),
+    ),
+
+    path(
+    "wishlist/",
+    WishlistAPIView.as_view(),
+    name="api-wishlist",
+    ),
+
+    path(
+    "wishlist/<int:pk>/",
+    WishlistItemAPIView.as_view(),
+    name="api-wishlist-item",
+    ),
+
+    path(
+    "products/<int:product_id>/reviews/",
+    ReviewListCreateAPIView.as_view(),
+    name="api-product-reviews",
+    ),
+
+    path(
+    "reviews/<int:pk>/",
+    ReviewDetailAPIView.as_view(),
+    name="api-review-detail",
     ),
 ]

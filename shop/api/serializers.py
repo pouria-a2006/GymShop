@@ -2,6 +2,7 @@ from rest_framework import serializers
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.tokens import RefreshToken
 from shop.models import Cart, CartItem
+from shop.models import ProductReview
 
 from shop.models import (
     Category,
@@ -9,6 +10,7 @@ from shop.models import (
     Product,
      Order,
     OrderItem,
+    Wishlist,
 )
 
 
@@ -155,3 +157,40 @@ class OrderSerializer(serializers.ModelSerializer):
             "created_at",
             "items",
         ]
+
+class WishlistSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+
+    class Meta:
+        model = Wishlist
+        fields = (
+            "id",
+            "product",
+            "created_at",
+        )
+
+
+class AddWishlistSerializer(serializers.Serializer):
+    product_id = serializers.IntegerField()
+
+class ProductReviewSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = ProductReview
+        fields = (
+            "id",
+            "user",
+            "rating",
+            "comment",
+            "created_at",
+        )
+
+
+class CreateReviewSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductReview
+        fields = (
+            "rating",
+            "comment",
+        )
