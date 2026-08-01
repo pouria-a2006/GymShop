@@ -5,6 +5,9 @@ from .views import (
     BrandListAPIView,
     ProductListAPIView,
     ProductDetailAPIView,
+    RegisterAPIView,
+    ProfileAPIView,
+    LogoutAPIView,
 )
 
 urlpatterns = [
@@ -30,5 +33,23 @@ urlpatterns = [
         "products/<int:pk>/",
         ProductDetailAPIView.as_view(),
         name="api-product-detail",
+    ),
+
+    path(
+    "register/",
+    RegisterAPIView.as_view(),
+    name="api-register",
+    ),
+
+    path(
+    "profile/",
+    ProfileAPIView.as_view(),
+    name="api-profile",
+    ),
+
+    path(
+    "logout/",
+    LogoutAPIView.as_view(),
+    name="api-logout",
     ),
 ]
