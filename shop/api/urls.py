@@ -11,6 +11,9 @@ from .views import (
     CartAPIView,
     CartItemAPIView,
     CheckoutAPIView,
+    OrderListAPIView,
+    OrderDetailAPIView,
+
 )
 
 urlpatterns = [
@@ -72,5 +75,15 @@ urlpatterns = [
     "checkout/",
     CheckoutAPIView.as_view(),
     name="api-checkout",
+    ),
+
+    path(
+    "orders/",
+    OrderListAPIView.as_view(),
+    ),
+
+    path(
+    "orders/<int:pk>/",
+    OrderDetailAPIView.as_view(),
     ),
 ]
