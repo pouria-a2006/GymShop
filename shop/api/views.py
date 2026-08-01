@@ -4,10 +4,13 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from rest_framework.response import Response
+from .serializers import UpdateCartItemSerializer
 from shop.models import (
     Category,
     Brand,
     Product,
+    Order,
+    OrderItem,
 )
 
 from .serializers import (
@@ -17,7 +20,19 @@ from .serializers import (
     RegisterSerializer,
     UserSerializer,
     LogoutSerializer,
+    OrderSerializer,
 )
+from rest_framework.views import APIView
+
+from shop.models import Cart
+
+from .serializers import (
+    CartSerializer,
+)
+
+from django.shortcuts import get_object_or_404
+from shop.models import Cart, CartItem, Product
+from .serializers import AddToCartSerializer
 
 
 class CategoryListAPIView(generics.ListAPIView):
@@ -89,4 +104,117 @@ class LogoutAPIView(generics.GenericAPIView):
         return Response(
             {"detail": "Successfully logged out."},
             status=status.HTTP_205_RESET_CONTENT,
+        )
+
+class CartAPIView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AddToCartSerializer
+
+    def get(self, request):
+        cart, created = Cart.objects.get_or_create(user=request.user)
+        serializer = CartSerializer(cart)
+        return Response(serializer.data)
+
+    def post(self, request):
+        cart, created = Cart.objects.get_or_create(user=request.user)
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        product = get_object_or_404(
+            Product,
+            id=serializer.validated_data["product_id"],
+        )
+
+        quantity = serializer.validated_data["quantity"]
+
+        cart_item, created = CartItem.objects.get_or_create(
+            cart=cart,
+            product=product,
+            defaults={"quantity": quantity},
+        )
+
+        if not created:
+            cart_item.quantity += quantity
+            cart_item.save()
+
+        return Response(
+            CartSerializer(cart).data,
+            status=status.HTTP_200_OK,
+        )
+
+class CartItemAPIView(generics.GenericAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = UpdateCartItemSerializer
+
+    def patch(self, request, pk):
+        cart = get_object_or_404(Cart, user=request.user)
+
+        item = get_object_or_404(
+            CartItem,
+            id=pk,
+            cart=cart,
+        )
+
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        item.quantity = serializer.validated_data["quantity"]
+        item.save()
+
+        return Response(
+            CartSerializer(cart).data
+        )
+
+    def delete(self, request, pk):
+        cart = get_object_or_404(
+            Cart,
+            user=request.user,
+        )
+
+        item = get_object_or_404(
+            CartItem,
+            id=pk,
+            cart=cart,
+        )
+
+        item.delete()
+
+        return Response(
+            CartSerializer(cart).data,
+            status=status.HTTP_200_OK,
+        )
+
+class CheckoutAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        cart = get_object_or_404(
+            Cart,
+            user=request.user,
+        )
+
+        if not cart.items.exists():
+            return Response(
+                {"detail": "Cart is empty."},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        order = Order.objects.create(
+            user=request.user,
+        )
+
+        for item in cart.items.all():
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                quantity=item.quantity,
+                price=item.product.discount_price or item.product.price,
+            )
+
+        cart.items.all().delete()
+
+        return Response(
+            OrderSerializer(order).data,
+            status=status.HTTP_201_CREATED,
         )
