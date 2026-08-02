@@ -1,44 +1,77 @@
-# GymShop API
+## GymShop API
 
-A complete Gym Shop backend built with Django and Django REST Framework.
+GymShop is a complete RESTful E-commerce Backend developed with **Django** and **Django REST Framework**.
 
-## Features
-
-- JWT Authentication
-- Product Categories
-- Brands
-- Product Management
-- Product Search
-- Product Filtering
-- Product Ordering
-- Shopping Cart
-- Order Management
-- Product Reviews
-- Admin Dashboard
-- Swagger Documentation
+The project follows an **API-first architecture**, making it suitable for web, mobile, or frontend frameworks such as React, Vue, Angular, Flutter, or any client capable of consuming REST APIs.
 
 ---
 
-## Tech Stack
+# Features
+
+- JWT Authentication
+- User Registration & Login
+- Product Management
+- Category Management
+- Brand Management
+- Product Search
+- Product Filtering
+- Product Ordering
+- Pagination
+- Shopping Cart
+- Order Management
+- Product Reviews
+- Django Admin Panel
+- Swagger API Documentation
+
+---
+
+# Technology Stack
 
 - Python 3.13
 - Django 6
 - Django REST Framework
-- Simple JWT
 - SQLite
-- drf-spectacular (Swagger)
+- Simple JWT
+- django-filter
+- drf-spectacular (Swagger/OpenAPI)
 
 ---
 
-## Installation
+# Installation
 
-Clone project
+Clone the repository
 
 ```bash
 git clone https://github.com/pouria-a2006/GymShop.git
 ```
 
-Install packages
+Go to project directory
+
+```bash
+cd GymShop
+```
+
+Create virtual environment
+
+```bash
+python -m venv venv
+```
+
+Activate virtual environment
+
+Windows
+
+```bash
+venv\Scripts\activate
+```
+
+Linux / macOS
+
+```bash
+source venv/bin/activate
+```
+
+Install dependencies
 
 ```bash
 pip install -r requirements.txt
@@ -50,6 +83,12 @@ Apply migrations
 python manage.py migrate
 ```
 
+Create superuser (optional)
+
+```bash
+python manage.py createsuperuser
+```
+
 Run server
 
 ```bash
@@ -58,7 +97,7 @@ python manage.py runserver
 
 ---
 
-## API Documentation
+# API Documentation
 
 Swagger UI
 
@@ -74,9 +113,9 @@ http://127.0.0.1:8000/api/schema/
 
 ---
 
-## Main API Endpoints
+# Main API Endpoints
 
-### Authentication
+## Authentication
 
 ```
 POST /api/register/
@@ -85,7 +124,9 @@ POST /api/token/refresh/
 POST /api/logout/
 ```
 
-### Products
+---
+
+## Products
 
 ```
 GET /api/products/
@@ -99,7 +140,9 @@ Supports
 - Ordering
 - Pagination
 
-### Cart
+---
+
+## Shopping Cart
 
 ```
 GET /api/cart/
@@ -108,7 +151,9 @@ PATCH /api/cart/item/{id}/
 DELETE /api/cart/item/{id}/
 ```
 
-### Orders
+---
+
+## Orders
 
 ```
 POST /api/orders/
@@ -116,7 +161,9 @@ GET /api/orders/
 GET /api/orders/{id}/
 ```
 
-### Reviews
+---
+
+## Product Reviews
 
 ```
 GET /api/products/{id}/reviews/
@@ -125,9 +172,9 @@ POST /api/products/{id}/reviews/
 
 ---
 
-## Authentication
+# Authentication
 
-This project uses JWT Authentication.
+All protected endpoints require JWT Authentication.
 
 Example
 
@@ -137,18 +184,50 @@ Authorization: Bearer <access_token>
 
 ---
 
-## Project Structure
+# Project Structure
 
 ```
-shop/
-    api/
-    migrations/
-    admin.py
-    models.py
+GymShop/
+│
+├── config/
+├── shop/
+│   ├── api/
+│   ├── migrations/
+│   ├── admin.py
+│   ├── models.py
+│   ├── serializers.py
+│   ├── views.py
+│   └── urls.py
+│
+├── media/
+├── manage.py
+├── requirements.txt
+└── README.md
 ```
 
 ---
 
-## Author
+# Testing
 
-Pouria
+The project can be tested using:
+
+- Swagger UI
+- Postman
+- Insomnia
+- cURL
+
+---
+
+# License
+
+This project is intended for educational and portfolio purposes.
+
+---
+
+# Author
+
+**Pouria**
+
+GitHub
+
+https://github.com/pouria-a2006
