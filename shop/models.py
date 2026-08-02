@@ -224,7 +224,7 @@ class ProductReview(models.Model):
         verbose_name_plural = "Product Reviews"
 
     def __str__(self):
-        return f"{self.product.name} - {self.name}"
+        return f"Review by {self.user.username} for {self.product.name}"
 
 from django.conf import settings
 
